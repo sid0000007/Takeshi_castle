@@ -1,0 +1,236 @@
+# Implementation Plan
+
+## Phase 0 - Repository Bootstrap
+- Goals
+  - Establish a clean full-stack workspace structure for frontend, backend, and shared types.
+  - Add root tooling for TypeScript, linting, formatting, local development, and Docker-based dependencies.
+  - Define environment variable templates and local run commands.
+- Files to create/update
+  - `package.json`
+  - `tsconfig.base.json`
+  - `.gitignore`
+  - `docker-compose.yml`
+  - `README.md`
+  - `apps/server/*`
+  - `apps/web/*`
+  - `packages/shared/*`
+- Dependencies
+  - Node.js 20+
+  - npm workspaces
+  - Docker / Docker Compose
+- Acceptance criteria
+  - Repository installs from the root with a single package manager.
+  - Local PostgreSQL and Redis services can be started via Docker Compose.
+  - Frontend and backend app directories exist with base TypeScript configuration.
+
+## Phase 1 - Backend Foundation
+- Goals
+  - Build the Express server, app bootstrap, env validation, logging, and API route registration.
+  - Implement health, auth, game, tiles, and leaderboard module boundaries.
+  - Prepare Socket.IO server bootstrap and authentication integration points.
+- Files to create/update
+  - `apps/server/package.json`
+  - `apps/server/tsconfig.json`
+  - `apps/server/src/index.ts`
+  - `apps/server/src/app.ts`
+  - `apps/server/src/server.ts`
+  - `apps/server/src/config/*`
+  - `apps/server/src/modules/**/*`
+  - `apps/server/src/middleware/*`
+  - `apps/server/src/lib/*`
+  - `apps/server/src/constants/*`
+- Dependencies
+  - Phase 0 workspace bootstrap
+  - Express
+  - Socket.IO
+  - Zod
+  - JWT support
+- Acceptance criteria
+  - Backend boots with validated environment variables.
+  - REST routes are mounted under `/api`.
+  - Health endpoint responds successfully.
+  - Socket.IO server attaches to the HTTP server.
+
+## Phase 2 - Database + Schema
+- Goals
+  - Translate the documented SQL model into migration-ready PostgreSQL SQL.
+  - Add database connection pooling and repository access patterns.
+  - Seed an active game session and its tile grid.
+- Files to create/update
+  - `apps/server/src/config/db.ts`
+  - `apps/server/src/db/migrations/001_initial.sql`
+  - `apps/server/src/db/seed.ts`
+  - `apps/server/src/modules/game/game.repository.ts`
+  - `apps/server/src/modules/tiles/tiles.repository.ts`
+  - `apps/server/src/modules/leaderboard/leaderboard.repository.ts`
+- Dependencies
+  - Phase 1 backend bootstrap
+  - PostgreSQL
+  - `pg`
+- Acceptance criteria
+  - Database schema matches the documented tables and indexes.
+  - Seed command creates one active session and a 20x20 tile grid.
+  - Game state and leaderboard can be queried from PostgreSQL.
+
+## Phase 3 - Redis + Realtime Core
+- Goals
+  - Add Redis connectivity, cache bootstrap, tile locking, cooldown support, and leaderboard caching.
+  - Implement server-authoritative tile claim logic with atomic lock handling.
+  - Wire Socket.IO event handlers for join, claim, heartbeat, reconnect state, and broadcasts.
+- Files to create/update
+  - `apps/server/src/config/redis.ts`
+  - `apps/server/src/lib/lock.ts`
+  - `apps/server/src/services/tile-cache.service.ts`
+  - `apps/server/src/services/claim.service.ts`
+  - `apps/server/src/sockets/**/*`
+  - `apps/server/src/modules/tiles/tiles.service.ts`
+  - `apps/server/src/modules/game/game.service.ts`
+- Dependencies
+  - Phase 2 database layer
+  - Redis / `ioredis`
+  - Socket.IO event model
+- Acceptance criteria
+  - A tile claim is processed through Redis lock protection.
+  - Concurrent claims for the same tile allow only one winner.
+  - Successful claims update Redis, persist to Postgres, and broadcast `tile_updated`.
+  - Failed claims emit a deterministic `claim_failed` response.
+
+## Phase 4 - Frontend Foundation
+- Goals
+  - Scaffold the Vite React TypeScript app with Tailwind, routing, API client, socket client, and Zustand stores.
+  - Build the app shell, providers, and user join flow.
+  - Persist guest auth locally for reconnects.
+- Files to create/update
+  - `apps/web/package.json`
+  - `apps/web/tsconfig.json`
+  - `apps/web/vite.config.ts`
+  - `apps/web/src/main.tsx`
+  - `apps/web/src/App.tsx`
+  - `apps/web/src/app/*`
+  - `apps/web/src/services/*`
+  - `apps/web/src/features/auth/*`
+  - `apps/web/src/pages/HomePage.tsx`
+- Dependencies
+  - Phase 0 workspace bootstrap
+  - React
+  - Vite
+  - Tailwind CSS
+  - Zustand
+  - Socket.IO client
+- Acceptance criteria
+  - Frontend boots locally and can reach the backend API.
+  - Guest login works and persists session state in the browser.
+  - Navigation to the game page is protected by local auth state.
+
+## Phase 5 - Shared Grid UI
+- Goals
+  - Render the active game session and tile matrix responsively.
+  - Build tile components with ownership visuals, hover states, loading states, and statistics panels.
+  - Add a polished interface for desktop and mobile.
+- Files to create/update
+  - `apps/web/src/pages/GamePage.tsx`
+  - `apps/web/src/components/game/*`
+  - `apps/web/src/components/layout/*`
+  - `apps/web/src/components/stats/*`
+  - `apps/web/src/features/game/*`
+  - `apps/web/src/index.css`
+  - `apps/web/src/styles/*`
+- Dependencies
+  - Phase 4 frontend foundation
+  - Backend game state API
+- Acceptance criteria
+  - Users can see the full board and owner metadata.
+  - Grid interaction is responsive on desktop and mobile.
+  - Leaderboard and online-user panels render with live-ready store data.
+
+## Phase 6 - Multiplayer Sync
+- Goals
+  - Connect the frontend to the Socket.IO server for `join_game`, `game_state`, `tile_updated`, `claim_failed`, and `online_users`.
+  - Implement optimistic interaction boundaries without breaking server-authoritative state.
+  - Keep store updates granular so only changed tiles re-render.
+- Files to create/update
+  - `apps/web/src/features/game/useGameSocket.ts`
+  - `apps/web/src/features/game/useClaimTile.ts`
+  - `apps/web/src/features/game/game.store.ts`
+  - `apps/web/src/hooks/useSocket.ts`
+  - `apps/web/src/components/game/Tile.tsx`
+  - `apps/web/src/components/game/GridBoard.tsx`
+- Dependencies
+  - Phase 3 realtime backend
+  - Phase 5 grid UI
+- Acceptance criteria
+  - Multiple clients see tile ownership changes immediately.
+  - Claim failures are surfaced clearly in the UI.
+  - Reconnect restores live updates and current board state.
+
+## Phase 7 - Polish + UX
+- Goals
+  - Add motion, toasts, subtle transitions, richer player metadata, and overall interface refinement.
+  - Improve perceived responsiveness with claim feedback, status badges, and connection state messaging.
+  - Tighten responsive behavior and accessibility basics.
+- Files to create/update
+  - `apps/web/src/components/common/*`
+  - `apps/web/src/lib/animations.ts`
+  - `apps/web/src/lib/colors.ts`
+  - `apps/web/src/pages/*`
+  - `apps/web/src/index.css`
+- Dependencies
+  - Phases 4-6 complete
+  - Framer Motion
+- Acceptance criteria
+  - UI communicates ownership, errors, and connectivity clearly.
+  - Common flows feel polished rather than bare MVP scaffolding.
+  - Core pages remain usable on mobile widths.
+
+## Phase 8 - Testing + Stability
+- Goals
+  - Add backend unit/integration tests for claim handling and API responses.
+  - Add frontend component/store tests for grid rendering and socket-driven updates.
+  - Validate concurrency behavior and failure handling.
+- Files to create/update
+  - `apps/server/tests/**/*`
+  - `apps/web/tests/**/*`
+  - workspace test configuration files
+- Dependencies
+  - All core phases complete
+  - Vitest
+  - Supertest
+  - Testing Library
+- Acceptance criteria
+  - Backend tests cover successful and conflicting tile claims.
+  - Frontend tests cover initial render and live update application.
+  - Test commands run from the repository root.
+
+## Phase 9 - Deployment Readiness
+- Goals
+  - Add production build scripts, deployment-oriented env docs, and container definitions.
+  - Ensure CORS, trusted origins, and runtime configuration are production-safe.
+  - Document Render/Vercel-style deployment expectations.
+- Files to create/update
+  - `Dockerfile`
+  - `apps/server/Dockerfile`
+  - `apps/web/Dockerfile`
+  - `.env.example`
+  - `README.md`
+- Dependencies
+  - Buildable frontend and backend apps
+  - Docker
+- Acceptance criteria
+  - Both apps produce production builds.
+  - Required environment variables are documented.
+  - Local containerized startup path is documented.
+
+## Phase N - Final Review
+- Goals
+  - Verify the implemented system matches the PRD and architecture docs.
+  - Check for missing wiring, rough edges, and deploy blockers.
+  - Record final run/test instructions.
+- Files to create/update
+  - `README.md`
+  - `docs/implementation-plan.md`
+- Dependencies
+  - All previous phases complete
+- Acceptance criteria
+  - The MVP allows guest users to join, capture tiles, and see live updates.
+  - Backend, Redis, Postgres, and frontend integrate cleanly.
+  - Remaining gaps, if any, are explicitly documented.
