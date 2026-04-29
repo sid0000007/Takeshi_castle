@@ -1,0 +1,20 @@
+import { config } from "dotenv";
+import { z } from "zod";
+
+config();
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  PORT: z.coerce.number().default(4000),
+  CLIENT_URL: z.string().url().default("http://localhost:5173"),
+  DATABASE_URL: z.string().min(1),
+  REDIS_URL: z.string().min(1),
+  JWT_SECRET: z.string().min(8),
+  ACTIVE_SESSION_NAME: z.string().default("Season 1"),
+  GRID_ROWS: z.coerce.number().default(20),
+  GRID_COLS: z.coerce.number().default(20),
+  CLAIM_COOLDOWN_MS: z.coerce.number().default(1000),
+  TILE_LOCK_TTL_MS: z.coerce.number().default(2000)
+});
+
+export const env = envSchema.parse(process.env);
