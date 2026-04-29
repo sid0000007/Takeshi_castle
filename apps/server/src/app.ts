@@ -1,3 +1,4 @@
+// Builds the Express app with shared middleware and API route mounting.
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";

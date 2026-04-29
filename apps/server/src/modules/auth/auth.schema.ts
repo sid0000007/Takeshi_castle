@@ -1,3 +1,4 @@
+// Validates the payload for guest login requests.
 import { z } from "zod";
 
 export const guestLoginSchema = z.object({

@@ -1,3 +1,4 @@
+// Boots migrations, seeds local data, attaches sockets, and starts listening.
 import { createServer } from "node:http";
 
 import { createApp } from "./app.js";

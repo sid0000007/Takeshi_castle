@@ -1,3 +1,4 @@
+// Creates guest users, picks colors, and returns signed auth tokens.
 import type { AuthResponse, PublicUser } from "@takeshi-castle/shared";
 
 import { db } from "../../config/db.js";

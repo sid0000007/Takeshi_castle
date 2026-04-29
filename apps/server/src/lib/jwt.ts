@@ -1,3 +1,4 @@
+// Wraps JWT signing and verification for guest user authentication.
 import jwt from "jsonwebtoken";
 
 import type { PublicUser } from "@takeshi-castle/shared";

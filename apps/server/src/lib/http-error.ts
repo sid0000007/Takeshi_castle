@@ -1,3 +1,4 @@
+// Provides a typed application error so handlers can return clean API responses.
 export class AppError extends Error {
   public readonly statusCode: number;
   public readonly code: string;

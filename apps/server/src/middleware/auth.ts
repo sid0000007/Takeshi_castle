@@ -1,3 +1,4 @@
+// Reads the bearer token and attaches the authenticated user to the request.
 import type { NextFunction, Request, Response } from "express";
 
 import { AppError } from "../lib/http-error.js";

@@ -1,3 +1,4 @@
+// Converts thrown errors into predictable JSON responses for the client.
 import type { NextFunction, Request, Response } from "express";
 
 import { AppError } from "../lib/http-error.js";

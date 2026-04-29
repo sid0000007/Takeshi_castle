@@ -1,3 +1,4 @@
+// Registers auth endpoints for guest user creation.
 import { Router } from "express";
 
 import { guestLoginController } from "./auth.controller.js";

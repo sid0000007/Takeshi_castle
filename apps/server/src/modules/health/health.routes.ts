@@ -1,3 +1,4 @@
+// Exposes the lightweight health endpoint for the service.
 import { Router } from "express";
 
 import { getHealthStatus } from "./health.controller.js";

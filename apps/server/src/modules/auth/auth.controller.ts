@@ -1,3 +1,4 @@
+// Handles HTTP auth requests and returns guest login results.
 import type { Request, Response } from "express";
 
 import { success } from "../../lib/response.js";

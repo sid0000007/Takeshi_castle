@@ -1,3 +1,4 @@
+// Loads and validates server environment variables before the app starts.
 import { config } from "dotenv";
 import { z } from "zod";
 

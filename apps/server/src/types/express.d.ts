@@ -1,3 +1,4 @@
+// Extends Express request typing with the authenticated user and token.
 import type { PublicUser } from "@takeshi-castle/shared";
 
 declare global {
