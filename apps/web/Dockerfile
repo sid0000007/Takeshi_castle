@@ -15,8 +15,9 @@ FROM node:20-alpine
 WORKDIR /app
 ENV NODE_ENV=production
 
+RUN npm install -g serve
+
 COPY --from=builder /app/apps/web/dist ./dist
-COPY --from=builder /app/apps/web/server.mjs ./server.mjs
 
 EXPOSE 3000
-CMD ["node", "server.mjs"]
+CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
