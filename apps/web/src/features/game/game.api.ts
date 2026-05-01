@@ -19,3 +19,13 @@ export async function fetchLeaderboard() {
 
   return response.data.data;
 }
+
+export async function resetGame() {
+  const response = await api.post<ApiResponse<{ reset: boolean }>>("/admin/reset");
+
+  if (!response.data.success) {
+    throw new Error(response.data.error.message);
+  }
+
+  return response.data.data;
+}

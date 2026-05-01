@@ -1,5 +1,5 @@
 // Runs the server-authoritative tile claim flow with Redis and Postgres.
-import type { LeaderboardEntry, PublicUser, TileState } from "@takeshi-castle/shared";
+import type { GameState, LeaderboardEntry, PublicUser, TileState } from "@takeshi-castle/shared";
 import { CLAIM_COOLDOWN_MS, TILE_LOCK_TTL_MS } from "@takeshi-castle/shared";
 
 import { db } from "../config/db.js";
@@ -7,6 +7,7 @@ import { env } from "../config/env.js";
 import { redis } from "../config/redis.js";
 import { AppError } from "../lib/http-error.js";
 import { acquireLock } from "../lib/lock.js";
+import { getCurrentGameState } from "../modules/game/game.service.js";
 import { getTileById } from "../modules/game/game.repository.js";
 import { getLeaderboard } from "../modules/leaderboard/leaderboard.repository.js";
 import { updateCachedTile } from "./tile-cache.service.js";
@@ -22,6 +23,7 @@ function cooldownKey(userId: string) {
 export type ClaimResult = {
   tile: TileState;
   leaderboard: LeaderboardEntry[];
+  gameState: GameState;
 };
 
 export async function claimTile(tileId: string, user: PublicUser): Promise<ClaimResult> {
@@ -124,10 +126,12 @@ export async function claimTile(tileId: string, user: PublicUser): Promise<Claim
 
     await updateCachedTile(tile);
     const leaderboard = await getLeaderboard();
+    const gameState = await getCurrentGameState();
 
     return {
       tile,
-      leaderboard
+      leaderboard,
+      gameState
     };
   } finally {
     await lock.release();

@@ -14,6 +14,9 @@ export function registerClaimTileHandler(io: Server, socket: Socket) {
       const result = await claimTileForUser(payload.tileId, user);
 
       io.emit(SOCKET_EVENTS.tileUpdated, result.tile);
+      io.emit("players_updated", {
+        players: result.gameState.players
+      });
       io.emit(SOCKET_EVENTS.leaderboardUpdated, {
         entries: result.leaderboard
       });

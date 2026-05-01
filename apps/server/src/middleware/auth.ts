@@ -3,8 +3,9 @@ import type { NextFunction, Request, Response } from "express";
 
 import { AppError } from "../lib/http-error.js";
 import { verifyToken } from "../lib/jwt.js";
+import { resolveAuthenticatedUser } from "../modules/auth/auth.service.js";
 
-export function authMiddleware(req: Request, _res: Response, next: NextFunction) {
+export async function authMiddleware(req: Request, _res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
@@ -14,7 +15,9 @@ export function authMiddleware(req: Request, _res: Response, next: NextFunction)
   }
 
   try {
-    req.user = verifyToken(token);
+    const auth = verifyToken(token);
+    req.auth = auth;
+    req.user = await resolveAuthenticatedUser(auth);
     req.token = token;
     next();
   } catch {

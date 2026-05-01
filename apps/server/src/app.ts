@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 
 import { env } from "./config/env.js";
+import { adminRoutes } from "./modules/admin/admin.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 import { gameRoutes } from "./modules/game/game.routes.js";
 import { healthRoutes } from "./modules/health/health.routes.js";
@@ -30,6 +31,7 @@ export function createApp() {
   app.use("/api/game", authMiddleware, gameRoutes);
   app.use("/api/tiles", authMiddleware, tilesRoutes);
   app.use("/api/leaderboard", authMiddleware, leaderboardRoutes);
+  app.use("/api/admin", authMiddleware, adminRoutes);
 
   app.use(notFoundMiddleware);
   app.use(errorMiddleware);

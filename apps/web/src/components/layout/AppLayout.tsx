@@ -19,17 +19,19 @@ export function AppLayout({ children }: PropsWithChildren) {
             <Link to="/game" className="hover:text-white">
               Game
             </Link>
-            <Link to="/leaderboard" className="hover:text-white">
-              Leaderboard
-            </Link>
             {user ? (
-              <button
-                className="rounded-full border border-white/10 px-3 py-1 text-stone-100 hover:border-white/30"
-                onClick={clearAuth}
-                type="button"
-              >
-                {user.username}
-              </button>
+              <div className="flex items-center gap-3">
+                <span className="rounded-full border border-white/10 px-3 py-1 text-stone-100">
+                  {user.username} · {user.role}
+                </span>
+                <button
+                  className="rounded-full border border-white/10 px-3 py-1 text-stone-100 hover:border-white/30"
+                  onClick={clearAuth}
+                  type="button"
+                >
+                  Logout
+                </button>
+              </div>
             ) : null}
           </nav>
         </div>
