@@ -3,15 +3,42 @@
 @tailwind utilities;
 
 :root {
+  --bg-app: #f7f8ef;
+  --bg-panel: #fbfcf6;
+  --bg-panel-alt: #f0f7ef;
+  --bg-sidebar: #f5f8ec;
+  --text-strong: #1f5450;
+  --text-body: #406c66;
+  --text-muted: #76928d;
+  --border-soft: #cfe2d8;
+  --shadow-soft: 0 24px 60px rgba(65, 121, 102, 0.08);
+  --shadow-card: 0 10px 30px rgba(65, 121, 102, 0.1);
+  --accent-teal: #2d7771;
+  --accent-teal-strong: #215f5a;
+  --accent-mint: #7dd8c4;
+  --accent-lime: #baf227;
+  --accent-lime-soft: #e9f7b0;
+  --accent-cream: #fff2bc;
   font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  color: #f5f5f4;
-  background-color: #09090b;
+  color: var(--text-strong);
+  background:
+    radial-gradient(circle at top, rgba(186, 242, 39, 0.26), transparent 28%),
+    linear-gradient(180deg, #fbfcf6 0%, #f2f7ec 48%, #eef5e8 100%);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  background: #09090b;
+  color: var(--text-strong);
+  background:
+    radial-gradient(circle at top, rgba(186, 242, 39, 0.22), transparent 22%),
+    linear-gradient(180deg, #f9fbf3 0%, #eef5e8 100%);
 }
 
 * {
@@ -19,6 +46,45 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app-shell-panel {
+  border: 1px solid var(--border-soft);
+  background: rgba(251, 252, 246, 0.92);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(16px);
+}
+
+.app-hero-surface {
+  background:
+    linear-gradient(135deg, rgba(47, 124, 118, 0.92) 0%, rgba(84, 187, 103, 0.9) 52%, rgba(186, 242, 39, 0.88) 100%);
+  color: white;
+  box-shadow: var(--shadow-soft);
+}
+
+.soft-pill {
+  border: 1px solid rgba(207, 226, 216, 0.95);
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--text-strong);
+}
+
+.teal-button {
+  background: linear-gradient(180deg, #2d7771 0%, #245f5b 100%);
+  color: white;
+  box-shadow: 0 10px 24px rgba(45, 119, 113, 0.22);
+}
+
+.dashboard-card {
+  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, rgba(252, 253, 248, 0.98) 0%, rgba(246, 250, 241, 0.96) 100%);
+  box-shadow: var(--shadow-card);
 }
