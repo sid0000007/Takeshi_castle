@@ -26,6 +26,16 @@ export function createApp() {
   app.use(helmet());
   app.use(express.json());
 
+  app.get("/", (_req, res) => {
+    res.json({
+      success: true,
+      data: {
+        service: "takeshi-castle-server",
+        status: "ok",
+        health: "/health"
+      }
+    });
+  });
   app.use("/health", healthRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/game", authMiddleware, gameRoutes);

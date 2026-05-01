@@ -11,7 +11,12 @@ RUN npm install
 COPY . .
 RUN npm run build --workspace @takeshi-castle/web
 
-FROM nginx:1.27-alpine
-COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/apps/web/dist ./dist
+COPY --from=builder /app/apps/web/server.mjs ./server.mjs
+
+EXPOSE 3000
+CMD ["node", "server.mjs"]
