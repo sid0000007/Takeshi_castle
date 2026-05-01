@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 
+import { ConfirmDialog } from "../components/common/ConfirmDialog.js";
+import { ToastViewport, type ToastMessage } from "../components/common/ToastViewport.js";
 import { GridBoard } from "../components/game/GridBoard.js";
 import { LiveOverviewDialog } from "../components/game/LiveOverviewDialog.js";
 import { ZoomControls } from "../components/game/ZoomControls.js";
@@ -17,6 +19,7 @@ import { useGameStore } from "../features/game/game.store.js";
 export function GamePage() {
   const setGameState = useGameStore((state) => state.setGameState);
   const setLeaderboard = useGameStore((state) => state.setLeaderboard);
+  const setClaimError = useGameStore((state) => state.setClaimError);
   const session = useGameStore((state) => state.session);
   const tileOrder = useGameStore((state) => state.tileOrder);
   const tilesById = useGameStore((state) => state.tiles);
@@ -29,6 +32,8 @@ export function GamePage() {
   const claimTile = useClaimTile();
   const [zoom, setZoom] = useState(1);
   const [overviewOpen, setOverviewOpen] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const gameQuery = useQuery({
     queryKey: ["game-state"],
@@ -52,6 +57,35 @@ export function GamePage() {
     }
   }, [leaderboardQuery.data, setLeaderboard]);
 
+  useEffect(() => {
+    if (!claimError) {
+      return;
+    }
+
+    const nextToast: ToastMessage = {
+      id: crypto.randomUUID(),
+      tone: "error",
+      text: claimError
+    };
+
+    setToasts((current) => [...current, nextToast]);
+    setClaimError(null);
+  }, [claimError, setClaimError]);
+
+  useEffect(() => {
+    if (toasts.length === 0) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setToasts((current) => current.slice(1));
+    }, 3200);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [toasts]);
+
   useGameSocket();
 
   const tiles = tileOrder
@@ -61,8 +95,26 @@ export function GamePage() {
   const myTiles = tiles.filter((tile) => tile.owner?.id === user?.id).length;
   const leadingPlayer = players[0]?.user.username ?? "No leader";
 
+  async function handleResetGame() {
+    await resetGame();
+    setResetDialogOpen(false);
+    setToasts((current) => [
+      ...current,
+      {
+        id: crypto.randomUUID(),
+        tone: "success",
+        text: "Game reset triggered successfully."
+      }
+    ]);
+  }
+
   return (
     <div className="space-y-6">
+      <ToastViewport
+        toasts={toasts}
+        onDismiss={(id) => setToasts((current) => current.filter((toast) => toast.id !== id))}
+      />
+
       <motion.section
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,14 +128,11 @@ export function GamePage() {
               <span className="rounded-full bg-white/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/85">
                 Live grid
               </span>
-              <span className="rounded-full bg-[var(--accent-cream)] px-4 py-2 text-sm font-semibold text-[var(--accent-teal-strong)]">
-                {connectionStatus}
-              </span>
             </div>
-            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               {session?.name ?? "Loading board"}
             </h1>
-            <p className="mt-3 text-lg text-white/82">
+            <p className="mt-3 text-base text-white/82 sm:text-lg">
               {onlineCount} players online · {claimedTiles} claimed tiles · control view in sync
             </p>
           </div>
@@ -99,9 +148,7 @@ export function GamePage() {
             {user?.role === "admin" ? (
               <button
                 type="button"
-                onClick={() => {
-                  void resetGame();
-                }}
+                onClick={() => setResetDialogOpen(true)}
                 className="rounded-full border border-white/30 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/18"
               >
                 Reset game
@@ -121,26 +168,8 @@ export function GamePage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
       <section className="space-y-4">
         <div className="dashboard-card rounded-[2rem] px-5 py-4">
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            {["Overview", "Grid", "Players", "Leaderboard"].map((tab, index) => (
-              <motion.span
-                key={tab}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.03 * index }}
-                className={`rounded-full px-4 py-2 text-sm font-medium ${
-                  index === 1
-                    ? "bg-[var(--accent-teal)] text-white"
-                    : "bg-[var(--bg-panel-alt)] text-[var(--text-body)]"
-                }`}
-              >
-                {tab}
-              </motion.span>
-            ))}
-          </div>
-
           <div>
-            <p className="text-sm font-medium text-[var(--text-strong)]">Board controls</p>
+            <p className="text-sm font-medium text-[var(--text-strong)]">Grid</p>
             <p className="text-xs text-[var(--text-muted)]">Zoom for larger maps and scroll to pan across the grid.</p>
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -157,12 +186,6 @@ export function GamePage() {
             />
           </div>
         </div>
-
-        {claimError ? (
-          <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
-            {claimError}
-          </div>
-        ) : null}
 
         {gameQuery.isLoading && !tiles.length ? (
           <div className="dashboard-card rounded-[2rem] p-8 text-[var(--text-muted)]">
@@ -186,6 +209,17 @@ export function GamePage() {
           open={overviewOpen}
           onClose={() => setOverviewOpen(false)}
           players={players}
+        />
+        <ConfirmDialog
+          open={resetDialogOpen}
+          title="Reset the game board?"
+          description="This will clear all tile ownership, reset player stats, and sign out non-admin players. This action is intentionally disruptive."
+          confirmLabel="Reset game"
+          tone="danger"
+          onCancel={() => setResetDialogOpen(false)}
+          onConfirm={() => {
+            void handleResetGame();
+          }}
         />
       </section>
 

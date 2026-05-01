@@ -10,7 +10,7 @@ export function Leaderboard({ entries }: LeaderboardProps) {
       <div className="mb-5 flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.26em] text-[var(--text-muted)]">Players</p>
-          <h2 className="mt-2 text-2xl font-semibold text-[var(--text-strong)]">Leaderboard</h2>
+          <h2 className="mt-2 text-xl font-semibold text-[var(--text-strong)] sm:text-[1.85rem]">Leaderboard</h2>
         </div>
         <span className="rounded-full bg-[var(--bg-panel-alt)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-teal)]">
           Top control

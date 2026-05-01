@@ -23,7 +23,7 @@ export function LiveOverviewDialog({ open, onClose, players }: LiveOverviewDialo
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#183a33]/20 px-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#183a33]/20 px-4 py-10 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -31,7 +31,7 @@ export function LiveOverviewDialog({ open, onClose, players }: LiveOverviewDialo
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="w-full max-w-5xl rounded-[2.5rem] border border-[var(--border-soft)] bg-[var(--bg-panel)] p-6 shadow-[var(--shadow-soft)]"
+            className="flex max-h-[calc(100vh-5rem)] w-full max-w-6xl flex-col rounded-[2.5rem] border border-[var(--border-soft)] bg-[var(--bg-panel)] p-6 shadow-[var(--shadow-soft)]"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between gap-4">
@@ -58,58 +58,63 @@ export function LiveOverviewDialog({ open, onClose, players }: LiveOverviewDialo
               </span>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="min-h-0 flex-1 overflow-auto rounded-[2rem] border border-[var(--border-soft)] bg-white">
               {players.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-[var(--border-soft)] bg-[var(--bg-panel-alt)] p-8 text-center text-[var(--text-muted)] sm:col-span-2">
+                <div className="p-8 text-center text-[var(--text-muted)]">
                   No live player data yet.
                 </div>
               ) : (
-                players.map((player, index) => (
-                  <motion.div
-                    key={player.user.id}
-                    initial={{ opacity: 0, y: 14 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.04 }}
-                    className="dashboard-card rounded-[2rem] p-5"
-                  >
-                    <div className="mb-3 flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <span
-                          className="h-4 w-4 rounded-full ring-4 ring-emerald-50"
-                          style={{ backgroundColor: player.user.color }}
-                        />
-                        <div>
-                          <p className="font-medium text-[var(--text-strong)]">{player.user.username}</p>
-                          <p className="text-xs uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                <table className="w-full border-separate border-spacing-0 text-left">
+                  <thead className="sticky top-0 bg-[var(--bg-panel)]">
+                    <tr className="text-xs uppercase tracking-[0.24em] text-[var(--text-muted)]">
+                      <th className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold">Player</th>
+                      <th className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold">Status</th>
+                      <th className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold">Tiles</th>
+                      <th className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold">Claims</th>
+                      <th className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold">Position</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {players.map((player, index) => (
+                      <motion.tr
+                        key={player.user.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.03 }}
+                        className="text-sm text-[var(--text-body)]"
+                      >
+                        <td className="border-b border-[var(--border-soft)] px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <span
+                              className="h-4 w-4 rounded-full ring-4 ring-emerald-50"
+                              style={{ backgroundColor: player.user.color }}
+                            />
+                            <div>
+                              <p className="font-semibold text-[var(--text-strong)]">{player.user.username}</p>
+                              <p className="text-xs text-[var(--text-muted)]">{player.user.role}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="border-b border-[var(--border-soft)] px-6 py-4">
+                          <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+                            player.isOnline
+                              ? "bg-[#dff8f1] text-[var(--accent-teal)]"
+                              : "bg-[var(--bg-panel-alt)] text-[var(--text-muted)]"
+                          }`}>
                             {player.isOnline ? "Online" : "Offline"}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="rounded-full bg-[var(--accent-lime-soft)] px-3 py-1 text-xs font-semibold text-[var(--accent-teal)]">
-                        {player.tilesOwned} tiles
-                      </span>
-                    </div>
-
-                    <div className="mb-4 h-2.5 overflow-hidden rounded-full bg-[#dfeee8]">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(100, player.tilesOwned * 8)}%` }}
-                        className="h-full rounded-full bg-gradient-to-r from-[var(--accent-teal)] to-[var(--accent-mint)]"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 text-sm">
-                      <div className="rounded-2xl bg-[var(--bg-panel-alt)] px-3 py-3">
-                        <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Claims</p>
-                        <p className="mt-1 text-base font-semibold text-[var(--text-strong)]">{player.totalClaims}</p>
-                      </div>
-                      <div className="rounded-2xl bg-[var(--bg-panel-alt)] px-3 py-3">
-                        <p className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">Position</p>
-                        <p className="mt-1 text-base font-semibold text-[var(--text-strong)]">{positionLabel(player)}</p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
+                          </span>
+                        </td>
+                        <td className="border-b border-[var(--border-soft)] px-6 py-4 font-semibold text-[var(--accent-teal-strong)]">
+                          {player.tilesOwned}
+                        </td>
+                        <td className="border-b border-[var(--border-soft)] px-6 py-4">{player.totalClaims}</td>
+                        <td className="border-b border-[var(--border-soft)] px-6 py-4 font-medium text-[var(--text-strong)]">
+                          {positionLabel(player)}
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
               )}
             </div>
           </motion.div>

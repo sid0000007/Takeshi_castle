@@ -12,9 +12,9 @@ type GridBoardProps = {
 
 export function GridBoard({ tiles, cols, currentUserId, zoom, onClaim }: GridBoardProps) {
   return (
-    <div className="overflow-auto rounded-[2rem] border border-white/10 bg-black/20 p-3">
+    <div className="dashboard-card overflow-auto rounded-[2.2rem] p-4">
       <div
-        className="grid gap-1 rounded-[1.65rem] border border-white/10 bg-black/30 p-3 shadow-2xl shadow-black/30 transition-transform duration-200"
+        className="grid gap-1.5 rounded-[1.9rem] border border-[#d1ddd5] bg-[#c7c8c2] p-4 shadow-inner transition-transform duration-200"
         style={{
           gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
           transform: `scale(${zoom})`,

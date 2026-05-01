@@ -25,8 +25,8 @@ export function StatCard({ label, value, hint, accent = "teal", delay = 0 }: Sta
     >
       <div className="mb-5 flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">{label}</p>
-          <p className="mt-4 text-5xl font-semibold tracking-tight text-[var(--text-strong)]">{value}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)]">{label}</p>
+          <p className="mt-3 text-4xl font-semibold tracking-tight text-[var(--text-strong)] sm:text-[2.7rem]">{value}</p>
         </div>
         <span className={`rounded-2xl px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] ${accentClasses}`}>
           live

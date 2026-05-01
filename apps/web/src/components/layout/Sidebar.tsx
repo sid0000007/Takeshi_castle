@@ -13,14 +13,14 @@ export function Sidebar() {
   const clearAuth = useAuthStore((state) => state.clearAuth);
 
   return (
-    <aside className="app-shell-panel sticky top-0 hidden min-h-screen w-[280px] shrink-0 rounded-r-[2rem] border-l-0 border-t-0 border-b-0 bg-[var(--bg-sidebar)] px-5 py-6 lg:flex lg:flex-col">
+    <aside className="app-shell-panel fixed inset-y-0 left-0 hidden h-screen w-[280px] shrink-0 rounded-r-[2rem] border-l-0 border-t-0 border-b-0 bg-[var(--bg-sidebar)] px-5 py-6 lg:flex lg:flex-col lg:overflow-hidden">
       <div className="mb-10 flex items-center gap-3 px-2">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-teal)] to-[var(--accent-lime)] text-lg font-bold text-white shadow-md">
           TC
         </div>
         <div>
           <p className="text-xs uppercase tracking-[0.28em] text-[var(--text-muted)]">Draft Style</p>
-          <h1 className="text-2xl font-semibold text-[var(--text-strong)]">Takeshi Castle</h1>
+          <h1 className="text-xl font-semibold text-[var(--text-strong)] sm:text-[1.7rem]">Takeshi Castle</h1>
         </div>
       </div>
 
@@ -43,7 +43,7 @@ export function Sidebar() {
               }
             >
               <div>
-                <p className="text-base font-medium">{item.label}</p>
+                <p className="text-[0.95rem] font-medium">{item.label}</p>
                 <p className="text-xs opacity-70">{item.hint}</p>
               </div>
               <span className="text-lg">›</span>
@@ -55,7 +55,7 @@ export function Sidebar() {
       <div className="mt-auto space-y-4 rounded-[1.8rem] border border-[var(--border-soft)] bg-white/70 p-4">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-[var(--text-muted)]">Signed in</p>
-          <p className="mt-2 text-lg font-semibold text-[var(--text-strong)]">{user?.username}</p>
+          <p className="mt-2 text-base font-semibold text-[var(--text-strong)] sm:text-lg">{user?.username}</p>
           <p className="text-sm text-[var(--text-muted)]">{user?.email ?? "Local player"}</p>
         </div>
 

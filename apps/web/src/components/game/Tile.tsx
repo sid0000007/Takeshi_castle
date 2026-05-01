@@ -14,6 +14,14 @@ export function Tile({ tile, isCurrentUserOwner, onClaim }: TileProps) {
   const owner = tile.owner;
   const [showSplash, setShowSplash] = useState(false);
 
+  const ownerInitials = owner
+    ? owner.username
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? "")
+        .join("")
+    : "";
+
   useEffect(() => {
     if (!showSplash) {
       return undefined;
@@ -46,47 +54,44 @@ export function Tile({ tile, isCurrentUserOwner, onClaim }: TileProps) {
       type="button"
       onClick={handleClick}
       disabled={Boolean(owner)}
-      className="group relative aspect-square min-w-0 overflow-hidden rounded-xl border border-white/10 transition disabled:cursor-not-allowed"
+      className="group relative aspect-square min-w-0 overflow-hidden rounded-[1rem] border border-white/30 transition disabled:cursor-not-allowed"
       style={{
         background: owner
-          ? `linear-gradient(160deg, ${owner.color}, rgba(10,10,10,0.9))`
-          : "linear-gradient(160deg, rgba(245,158,11,0.08), rgba(255,255,255,0.02))"
+          ? isCurrentUserOwner
+            ? `linear-gradient(180deg, ${owner.color}, color-mix(in srgb, ${owner.color} 72%, #fff5c0 28%))`
+            : `linear-gradient(180deg, ${owner.color}, color-mix(in srgb, ${owner.color} 76%, #edf5dc 24%))`
+          : "linear-gradient(180deg, rgba(241,243,234,0.78), rgba(228,232,224,0.92))"
       }}
     >
       <BombSplash active={showSplash} />
       <div
         className={`absolute inset-0 opacity-0 transition group-hover:opacity-100 ${
-          owner ? "bg-black/10" : "bg-amber-300/5"
+          owner ? "bg-white/10" : "bg-white/35"
         }`}
       />
-      <div className="relative flex h-full w-full flex-col justify-between p-2 text-left">
-        <div className="flex items-start justify-between gap-2">
-          <span className="text-[10px] uppercase tracking-[0.25em] text-white/50">
-            {tile.rowIndex},{tile.colIndex}
-          </span>
+      <div className="relative flex h-full w-full flex-col justify-between p-1.5 text-left">
+        <div className="flex items-start justify-end gap-2">
           {owner ? (
             <span
-              className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] ${
-                isCurrentUserOwner ? "bg-black/45 text-amber-200" : "bg-black/35 text-white/80"
+              className={`rounded-full px-1.5 py-1 text-[8px] font-semibold uppercase tracking-[0.16em] ${
+                isCurrentUserOwner
+                  ? "bg-[var(--accent-cream)] text-[var(--accent-teal-strong)]"
+                  : "bg-white/70 text-[var(--accent-teal-strong)]"
               }`}
             >
               {isCurrentUserOwner ? "Yours" : "Owned"}
             </span>
           ) : null}
         </div>
-        <div className="space-y-1">
-          <span className="line-clamp-2 text-xs font-medium text-white">
-            {owner ? owner.username : ""}
-          </span>
-          <span className="block text-[10px] uppercase tracking-[0.24em] text-white/60">
-            {owner ? "Claimed" : ""}
-          </span>
+        <div className="flex flex-1 items-center justify-center">
+          {owner ? (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-[11px] font-bold tracking-[0.08em] text-white shadow-sm">
+              {ownerInitials}
+            </div>
+          ) : (
+            <div className="h-2.5 w-2.5 rounded-full bg-white/55 transition group-hover:scale-125 group-hover:bg-[var(--accent-lime)]" />
+          )}
         </div>
-        {owner ? (
-          <span className="absolute bottom-2 right-2 text-[11px] font-semibold text-white/85">
-            {owner.username.slice(0, 2).toUpperCase()}
-          </span>
-        ) : null}
       </div>
     </motion.button>
   );
