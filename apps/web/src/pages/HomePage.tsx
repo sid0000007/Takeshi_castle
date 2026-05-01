@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 import { useAuthStore } from "../features/auth/auth.store.js";
 import { useLogin, useRegister } from "../features/auth/useAuthMutations.js";
+import { getApiErrorMessage } from "../services/api-errors.js";
 
 const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
 const featureCards = [
@@ -38,7 +39,18 @@ export function HomePage() {
     return <Navigate to="/game" replace />;
   }
 
-  const errorMessage = (mode === "login" ? login.error : register.error)?.message ?? null;
+  const errorMessage = (() => {
+    const activeError = mode === "login" ? login.error : register.error;
+
+    if (!activeError) {
+      return null;
+    }
+
+    return getApiErrorMessage(
+      activeError,
+      mode === "login" ? "Failed to sign in." : "Failed to create account."
+    );
+  })();
 
   return (
     <div className="min-h-screen bg-[var(--bg-app)] px-4 py-6 sm:px-6 lg:px-8">
